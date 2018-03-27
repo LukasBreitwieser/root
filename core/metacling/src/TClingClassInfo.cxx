@@ -1240,8 +1240,21 @@ void TClingClassInfo::FullName(std::string &output, const ROOT::TMetaUtils::TNor
       return;
    }
    if (fType) {
-      QualType type(fType, 0);
-      ROOT::TMetaUtils::GetNormalizedName(output, type, *fInterp, normCtxt);
+      // QualType type(fType, 0);
+      // ROOT::TMetaUtils::GetNormalizedName(output, type, *fInterp, normCtxt);
+
+      const clang::CXXRecordDecl *clxx = llvm::dyn_cast<clang::CXXRecordDecl>(fDecl);
+      if (clxx == 0) {
+        QualType type(fType, 0);
+        ROOT::TMetaUtils::GetNormalizedName(output, type, *fInterp, normCtxt);
+        return;
+      }
+
+      std::string clsname;
+      std::string nsname;
+
+      ROOT::TMetaUtils::GetNameWithinNamespace(output, clsname, nsname, clxx);
+
    }
    else {
       if (const NamedDecl* ND =
@@ -1329,4 +1342,3 @@ const char *TClingClassInfo::TmpltName() const
    }
    return buf.c_str();
 }
-

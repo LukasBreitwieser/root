@@ -310,6 +310,7 @@ ROOT::Internal::RootCling::TROOTSYSSetter::TROOTSYSSetter() {
 
 void EmitStreamerInfo(const char *normName)
 {
+  std::cout << "EmitStreamerInfo " << normName << std::endl;
    if (gDriverConfig->fAddStreamerInfoToROOTFile)
       gDriverConfig->fAddStreamerInfoToROOTFile(normName);
 }
@@ -1598,6 +1599,8 @@ void WriteStreamer(const ROOT::TMetaUtils::AnnotatedRecordDecl &cl,
       enclSpaceNesting = ROOT::TMetaUtils::WriteNamespaceHeader(dictStream, cl);
    }
 
+   std::cout << "clsname " << clsname << std::endl;
+
    dictStream << "//_______________________________________"
               << "_______________________________________" << std::endl;
    if (add_template_keyword) dictStream << "template <> ";
@@ -1999,6 +2002,8 @@ void WriteAutoStreamer(const ROOT::TMetaUtils::AnnotatedRecordDecl &cl,
    if (ROOT::TMetaUtils::GetNameWithinNamespace(fullname, clsname, nsname, clxx)) {
       enclSpaceNesting = ROOT::TMetaUtils::WriteNamespaceHeader(dictStream, cl);
    }
+   std::cout << "clsname " << clsname << std::endl;
+
 
    dictStream << "//_______________________________________"
               << "_______________________________________" << std::endl;
@@ -3069,7 +3074,25 @@ int GenerateFullDict(std::ostream &dictStream,
             Internal::RStl::Instance().GenerateTClassFor(selClass.GetNormalizedName(), CRD, interp, normCtxt);
          } else {
             ROOT::TMetaUtils::WriteClassInit(dictStream, selClass, CRD, interp, normCtxt, ctorTypes, needsCollectionProxy);
-            EmitStreamerInfo(selClass.GetNormalizedName());
+            std::cout << "EmitStreamerInfo 3077 " << selClass.GetRequestedName() << std::endl;
+
+            const clang::CXXRecordDecl *clxx = llvm::dyn_cast<clang::CXXRecordDecl>(selClass.GetRecordDecl());
+            if (clxx == 0) continue;
+
+            string fullname;
+            string clsname;
+            string nsname;
+
+            ROOT::TMetaUtils::GetNameWithinNamespace(fullname, clsname, nsname, clxx);
+
+            std::cout << "nsname   " << nsname << std::endl;
+            std::cout << "clsname  " << clsname << std::endl;
+            std::cout << "fullname " << fullname << std::endl;
+
+
+            EmitStreamerInfo(fullname.c_str());
+
+            // EmitStreamerInfo(selClass.GetNormalizedName());
          }
       }
    }
@@ -3106,7 +3129,19 @@ int GenerateFullDict(std::ostream &dictStream,
 
       if (!ROOT::TMetaUtils::IsSTLContainer(selClass)) {
          ROOT::TMetaUtils::WriteClassInit(dictStream, selClass, CRD, interp, normCtxt, ctorTypes, needsCollectionProxy);
-         EmitStreamerInfo(selClass.GetNormalizedName());
+         std::cout << "EmitStreamerInfo 3116 " << selClass.GetRequestedName() << std::endl;
+
+         const clang::CXXRecordDecl *clxx = llvm::dyn_cast<clang::CXXRecordDecl>(selClass.GetRecordDecl());
+         if (clxx == 0) continue;
+
+         string fullname;
+         string clsname;
+         string nsname;
+
+         ROOT::TMetaUtils::GetNameWithinNamespace(fullname, clsname, nsname, clxx);
+
+         EmitStreamerInfo(fullname.c_str());
+        //  EmitStreamerInfo(selClass.GetNormalizedName());
       }
    }
    // Loop to write all the ClassCode
