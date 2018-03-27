@@ -21,7 +21,6 @@
 #include "TStreamerInfo.h"
 #include "TClassEdit.h"
 #include <memory>
-#include <iostream>
 
 std::string gPCMFilename;
 std::vector<std::string> gClassesToStore;
@@ -155,7 +154,6 @@ bool CloseStreamerInfoROOTFile(bool writeEmptyRootPCM)
 
    TObjArray protoClasses(gClassesToStore.size());
    for (const auto & normName : gClassesToStore) {
-     std::cout << "normName " << normName << std::endl;
       TClass *cl = TClass::GetClass(normName.c_str(), kTRUE /*load*/);
       if (!cl) {
          Error("CloseStreamerInfoROOTFile", "Cannot find class %s.", normName.c_str());
